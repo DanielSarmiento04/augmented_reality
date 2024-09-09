@@ -59,6 +59,17 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    // Retrofit for making API calls
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // OkHttp for logging HTTP requests and responses (optional)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
+
+    // Other dependencies
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
     // Compose Navigation
     implementation("androidx.navigation:navigation-compose:2.6.0")
 

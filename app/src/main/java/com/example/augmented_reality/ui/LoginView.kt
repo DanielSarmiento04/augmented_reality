@@ -1,18 +1,11 @@
 package com.example.augmented_reality.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -20,8 +13,13 @@ import com.example.augmented_reality.viewmodel.UserViewModel
 
 @Composable
 fun LoginView(navController: NavHostController, userViewModel: UserViewModel = viewModel()) {
-    // Collect StateFlow as state
+    // Collect StateFlow as State
     val isLoading by userViewModel.isLoading.collectAsState()
+    val loginError by userViewModel.loginError.collectAsState()
+    val user by userViewModel.user.collectAsState()
+
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -31,13 +29,43 @@ fun LoginView(navController: NavHostController, userViewModel: UserViewModel = v
         if (isLoading) {
             CircularProgressIndicator()
         } else {
-            Text(text = "Login")
+            Text(text = "Inicio de Sesión")
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Username input field
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Usuario") },
+                modifier = Modifier.fillMaxWidth(0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Password input field
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Show error message if login fails
+            if (loginError) {
+                Text(text = "Credenciales incorrectas", color = MaterialTheme.colorScheme.error)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             Button(onClick = {
-                userViewModel.login("User123")
-                navController.navigate("userContent")
+                userViewModel.login(username, password)
+                if (user.isAuthenticated) {
+                    navController.navigate("userContent")
+                }
             }) {
-                Text(text = "Login as User123")
+                Text(text = "Iniciar Sesión")
             }
         }
     }
