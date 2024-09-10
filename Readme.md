@@ -7,7 +7,7 @@
     Jose Daniel Sarmiento , Manuel Ayala  | { jose2192232, jose2195529 } @correo.uis.edu.co
 </center>
 
-
+## Resumen
 
 Este es un proyecto de ejemplo para la creación de una aplicación de realidad aumentada utilizando Jetpack Compose y la arquitectura MVVM (Modelo-Vista-ViewModel) en Android. El objetivo principal de este proyecto es integrar capacidades de realidad aumentada (AR) para facilitar el mantenimiento industrial, proporcionando una interfaz de usuario moderna y eficiente utilizando las últimas tecnologías de Android.
 
