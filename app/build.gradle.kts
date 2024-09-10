@@ -50,6 +50,25 @@ android {
 }
 
 dependencies {
+
+    // http request multiplatform ktor
+    val activity_version = "1.9.1"
+
+    implementation("com.google.ar:core:1.44.0")
+    implementation("androidx.activity:activity-ktx:$activity_version")
+    implementation("androidx.compose.ui:ui:1.6.8")
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.1")
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.3.0-beta05")
+
+    val camerax_version = "1.2.0"
+
+    implementation("androidx.camera:camera-core:$camerax_version")
+    implementation("androidx.camera:camera-camera2:$camerax_version")
+    implementation("androidx.camera:camera-lifecycle:$camerax_version")
+    implementation("androidx.camera:camera-view:$camerax_version")
+    implementation("androidx.camera:camera-extensions:$camerax_version")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,6 +77,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation("io.github.sceneview:arsceneview:0.10.0")
 
     // Retrofit for making API calls
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
