@@ -18,7 +18,7 @@ interface AuthorizationService {
         @Field("username") username: String,
         @Field("password") password: String,
         @Field("scope") scope: String = "",
-        @Field("client_id") clientId: String = "string",
-        @Field("client_secret") clientSecret: String = "string"
+        @Field("client_id") clientId: String = "string",  // Static client_id
+        @Field("client_secret") clientSecret: String = "string"  // Static client_secret
     ): AuthorizationResponse
 }

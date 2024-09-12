@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
 
-    // StateFlow for user data with the updated User model (including password)
     private val _user = MutableStateFlow(User(username = "", password = "", isAuthenticated = false))
     val user: StateFlow<User> = _user
 
@@ -20,18 +19,26 @@ class UserViewModel : ViewModel() {
 
     private val _accessToken = MutableStateFlow<String?>(null)
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    private val client_username = "Daniel"
+    private val client_password = "Contravene"
+
     // Handle login (authorization) with the server
     fun login(username: String, password: String) {
         _isLoading.value = true
+        _errorMessage.value = null  // Clear error message before a new login attempt
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.authorizationService.authorize(
-                    username = username,
-                    password = password
+                    username = client_username,
+                    password = client_password
                 )
                 _accessToken.value = response.access_token
                 _user.value = User(username = username, password = password, isAuthenticated = true)
             } catch (e: Exception) {
+                _errorMessage.value = "Login failed. Please check your credentials."  // Update error message
                 _user.value = User(username = "", password = "", isAuthenticated = false)
                 e.printStackTrace()
             } finally {
@@ -43,6 +50,7 @@ class UserViewModel : ViewModel() {
     // Handle authentication check with the updated User model
     fun authenticate() {
         _isLoading.value = true
+        _errorMessage.value = null
         viewModelScope.launch {
             try {
                 val isAuthenticated = RetrofitInstance.authenticationService.authenticate(
@@ -51,6 +59,7 @@ class UserViewModel : ViewModel() {
                 )
                 _user.value = _user.value.copy(isAuthenticated = isAuthenticated)
             } catch (e: Exception) {
+                _errorMessage.value = "Authentication failed."
                 _user.value = _user.value.copy(isAuthenticated = false)
                 e.printStackTrace()
             } finally {
