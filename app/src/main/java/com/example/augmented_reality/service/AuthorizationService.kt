@@ -14,7 +14,7 @@ interface AuthorizationService {
     @FormUrlEncoded
     @POST("api/v1/Authorization/")
     suspend fun authorize(
-        @Field("grant_type") grantType: String,
+        @Field("grant_type") grantType: String = "password",
         @Field("username") username: String,
         @Field("password") password: String,
         @Field("scope") scope: String = "",
