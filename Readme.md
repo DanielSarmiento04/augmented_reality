@@ -25,40 +25,52 @@ Este es un proyecto de ejemplo para la creación de una aplicación de realidad 
 - Jetpack Compose: La librería moderna de Android para construir interfaces de usuario de manera declarativa.
 - MVVM (Modelo-Vista-ViewModel): Arquitectura que ayuda a separar las capas de presentación, negocio y datos.
 - Kotlin Coroutines: Para manejar operaciones asíncronas de forma eficiente.
-Navegación en Jetpack Compose: Para gestionar las transiciones entre pantallas.
+- Navegación en Jetpack Compose: Para gestionar las transiciones entre pantallas.
 - Hilt (opcional): Inyección de dependencias simplificada.
-Realidad Aumentada (ARCore): Para integrar la funcionalidad de realidad aumentada.
-Estructura del Proyecto
+- Realidad Aumentada (ARCore): Para integrar la funcionalidad de realidad aumentada.
+
+
+## Estructura del Proyecto
 
 ```bash
 /app
-│
 ├── /src
 │   ├── /main
 │   │   ├── /java/com/example/augmented_reality
-│   │   │   ├── MainActivity.kt               // Actividad principal con la navegación
+│   │   │   ├── MainActivity.kt
 │   │   │   ├── /ui
-│   │   │   │   ├── LoginView.kt              // Pantalla de inicio de sesión
-│   │   │   │   ├── UserContentView.kt        // Pantalla de contenido del usuario
-│   │   │   │   ├── /theme                    // Archivos de temas
-│   │   │   ├── /model
-│   │   │   │   ├── User.kt                   // Modelo de datos del usuario
+│   │   │   │   ├── LoginView.kt
+│   │   │   │   ├── UserContentView.kt
 │   │   │   ├── /viewmodel
-│   │   │   │   ├── UserViewModel.kt          // ViewModel para gestionar el estado del usuario
-│   ├── AndroidManifest.xml                    // Configuración del manifiesto de Android
+│   │   │   │   ├── UserViewModel.kt
+│   │   │   ├── /model
+│   │   │   │   ├── User.kt
+│   │   │   ├── /services
+│   │   │   │   ├── AuthorizationService.kt
+│   │   │   │   ├── AuthenticationService.kt
 ```
 
 ## Funcionalidades
 
-- Inicio de Sesión: Pantalla donde los usuarios pueden iniciar sesión. Actualmente, utiliza un login simulado que se puede expandir para autenticar usuarios con servicios en la nube o bases de datos.
-Pantalla de Contenido del Usuario: Una vez autenticado, el usuario accede a esta pantalla, donde puede ver información personalizada.
-- Navegación: Navegación entre pantallas utilizando Jetpack Compose Navigation.
-Temas Claros y Oscuros: Soporte para temas dinámicos basados en las preferencias del sistema.
-Requisitos
+- **Inicio de sesión con Autenticación y Autorización**
+  - Soporta credenciales estáticas por defecto (`username: Daniel`, `password: Contravene`).
+  - Permite credenciales personalizadas.
+  - Maneja autenticación basada en tokens y verifica a los usuarios con una API.
 
-Android Studio Flamingo (o superior)
-Conocimientos básicos de Android y Kotlin
-ARCore para funcionalidades de realidad aumentada (para versiones futuras)
+- **Manejo de Errores**
+  - Muestra mensajes de error apropiados cuando el inicio de sesión o la autenticación fallan.
+  - Proporciona la opción de reintentar el inicio de sesión si falla.
+
+- **Indicador de Carga**
+  - Muestra un indicador de carga cuando el proceso de inicio de sesión o autenticación está en curso.
+  - Deshabilita las acciones de inicio de sesión mientras el estado de carga está activo.
+
+## Requisitos
+
+- Android Studio Flamingo (o superior)
+- Conocimientos básicos de Android y Kotlin
+- ARCore para funcionalidades de realidad aumentada (para versiones futuras)
+
 ## Instalación
 
 1. Clona el repositorio:
@@ -81,3 +93,6 @@ ARCore para funcionalidades de realidad aumentada (para versiones futuras)
 Este es un proyecto abierto a mejoras y colaboraciones. Si deseas contribuir, puedes hacerlo mediante pull requests o abriendo issues en el repositorio.
 Licencia
 
+## Licencia
+
+Este proyecto no debe ser utilizado para fines de lucro
