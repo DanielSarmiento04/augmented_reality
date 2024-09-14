@@ -25,20 +25,32 @@ class UserViewModel : ViewModel() {
     private val client_username = "Daniel"
     private val client_password = "Contravene"
 
-    // Handle login (authorization) with the server
     fun login(username: String, password: String) {
         _isLoading.value = true
         _errorMessage.value = null  // Clear error message before a new login attempt
         viewModelScope.launch {
             try {
+                // Step 1: Authenticate the client to get the access token
                 val response = RetrofitInstance.authorizationService.authorize(
                     username = client_username,
                     password = client_password
                 )
                 _accessToken.value = response.access_token
-                _user.value = User(username = username, password = password, isAuthenticated = true)
+
+                // Step 2: Authorize the user using the access token
+                val isAuthenticated = RetrofitInstance.authenticationService.authenticate(
+                    token = "Bearer ${_accessToken.value}",
+                    request = AuthenticationRequest(username = username, password = password)
+                )
+
+                if (isAuthenticated) {
+                    _user.value = User(username = username, password = password, isAuthenticated = true)
+                } else {
+                    _errorMessage.value = "Authentication failed. Please check your credentials."
+                    _user.value = User(username = "", password = "", isAuthenticated = false)
+                }
             } catch (e: Exception) {
-                _errorMessage.value = "Login failed. Please check your credentials."  // Update error message
+                _errorMessage.value = "Login failed. Please check your credentials."
                 _user.value = User(username = "", password = "", isAuthenticated = false)
                 e.printStackTrace()
             } finally {
@@ -46,6 +58,7 @@ class UserViewModel : ViewModel() {
             }
         }
     }
+
 
     // Handle authentication check with the updated User model
     fun authenticate() {

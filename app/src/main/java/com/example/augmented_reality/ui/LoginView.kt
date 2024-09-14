@@ -1,3 +1,5 @@
+// LoginView.kt
+
 package com.example.augmented_reality.ui
 
 import androidx.compose.foundation.layout.Arrangement
@@ -5,14 +7,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,25 +35,37 @@ import com.example.augmented_reality.viewmodel.UserViewModel
 fun LoginView(navController: NavHostController, userViewModel: UserViewModel = viewModel()) {
     val isLoading by userViewModel.isLoading.collectAsState()
     val errorMessage by userViewModel.errorMessage.collectAsState()
+    val user by userViewModel.user.collectAsState()
 
     // State for username and password fields
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    // Navigate to UserContentView when authenticated
+    LaunchedEffect(user.isAuthenticated) {
+        if (user.isAuthenticated) {
+            navController.navigate("userContent") {
+                popUpTo("login") { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Show loading indicator if isLoading is true
         if (isLoading) {
             CircularProgressIndicator()
         } else {
-            // Username Input Field
+            Text(text = "Inicio de Sesión")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Username input field
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text(text = "Username") },
+                label = { Text("Usuario") },
                 modifier = Modifier.fillMaxWidth(0.8f)
             )
 
@@ -60,7 +75,7 @@ fun LoginView(navController: NavHostController, userViewModel: UserViewModel = v
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text(text = "Password") },
+                label = { Text(text = "Contraseña") },
                 modifier = Modifier.fillMaxWidth(0.8f),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
@@ -77,7 +92,7 @@ fun LoginView(navController: NavHostController, userViewModel: UserViewModel = v
             // Login Button
             Button(
                 onClick = {
-                    // If username or password is empty, the default will be used
+                    // Call the login function with user input
                     userViewModel.login(
                         username = username,
                         password = password
