@@ -18,7 +18,7 @@ import com.example.augmented_reality.viewmodel.UserViewModel
 @Composable
 fun UserContentView(
     navController: NavHostController,
-    userViewModel: UserViewModel = viewModel()
+    userViewModel: UserViewModel
 ) {
     val user by userViewModel.user.collectAsState()
 

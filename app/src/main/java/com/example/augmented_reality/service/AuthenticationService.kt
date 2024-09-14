@@ -3,6 +3,8 @@ package com.example.augmented_reality.service
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.Response
+
 
 data class AuthenticationRequest(
     val username: String,

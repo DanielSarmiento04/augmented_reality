@@ -30,9 +30,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.augmented_reality.viewmodel.UserViewModel
+import android.util.Log
 
 @Composable
-fun LoginView(navController: NavHostController, userViewModel: UserViewModel = viewModel()) {
+fun LoginView(
+    navController: NavHostController,
+    userViewModel: UserViewModel  // Remove default value
+) {
     val isLoading by userViewModel.isLoading.collectAsState()
     val errorMessage by userViewModel.errorMessage.collectAsState()
     val user by userViewModel.user.collectAsState()
@@ -41,14 +45,19 @@ fun LoginView(navController: NavHostController, userViewModel: UserViewModel = v
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Log the authentication state
+    Log.d("LoginView", "User isAuthenticated: ${user.isAuthenticated}")
+
     // Navigate to UserContentView when authenticated
-    LaunchedEffect(user.isAuthenticated) {
-        if (user.isAuthenticated) {
+    if (user.isAuthenticated) {
+        // Perform navigation
+        LaunchedEffect(Unit) {
             navController.navigate("userContent") {
                 popUpTo("login") { inclusive = true }
             }
         }
     }
+
 
     Column(
         modifier = Modifier.fillMaxSize(),

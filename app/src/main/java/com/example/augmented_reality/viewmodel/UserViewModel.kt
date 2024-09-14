@@ -8,6 +8,8 @@ import com.example.augmented_reality.service.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import android.util.Log
+
 
 class UserViewModel : ViewModel() {
 
@@ -27,7 +29,7 @@ class UserViewModel : ViewModel() {
 
     fun login(username: String, password: String) {
         _isLoading.value = true
-        _errorMessage.value = null  // Clear error message before a new login attempt
+        _errorMessage.value = null
         viewModelScope.launch {
             try {
                 // Step 1: Authenticate the client to get the access token
@@ -45,19 +47,22 @@ class UserViewModel : ViewModel() {
 
                 if (isAuthenticated) {
                     _user.value = User(username = username, password = password, isAuthenticated = true)
+                    Log.d("UserViewModel", "User authenticated successfully.")
                 } else {
                     _errorMessage.value = "Authentication failed. Please check your credentials."
                     _user.value = User(username = "", password = "", isAuthenticated = false)
+                    Log.d("UserViewModel", "User authentication failed.")
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Login failed. Please check your credentials."
                 _user.value = User(username = "", password = "", isAuthenticated = false)
-                e.printStackTrace()
+                Log.e("UserViewModel", "Exception during login", e)
             } finally {
                 _isLoading.value = false
             }
         }
     }
+
 
 
     // Handle authentication check with the updated User model
