@@ -2,36 +2,24 @@
 
 package com.example.augmented_reality.ui
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
-import com.example.augmented_reality.R
 import com.example.augmented_reality.viewmodel.UserViewModel
+
 
 @Composable
 fun UserContentView(
@@ -61,73 +49,112 @@ fun UserContentView(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    // UI layout structure
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        val context = LocalContext.current
-        val input_stream = context.assets.open("bomba-playstore.png")
-        val image_bitmap = BitmapFactory.decodeStream(input_stream)
-
-        Text(text = "Bienvenido, ${user.username}!")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Static image representing machine selection
-        Image(
-            bitmap = image_bitmap.asImageBitmap(),
-            contentDescription = "Imagen de la máquina",
-            modifier = Modifier.size(200.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Dropdown for selecting a machine
-        Button(onClick = { machineExpanded = true }) {
-            Text(text = selectedMachine)
-        }
-        DropdownMenu(
-            expanded = machineExpanded,
-            onDismissRequest = { machineExpanded = false }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .clip(RoundedCornerShape(20.dp)) // Apply clip modifier
+                .wrapContentHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            machines.forEach { machine ->
-                DropdownMenuItem(
-                    text = { Text(text = machine) },
-                    onClick = {
-                        selectedMachine = machine
-                        machineExpanded = false
-                    }
+            val context = LocalContext.current
+            val input_stream = context.assets.open("bomba-centrifuga.webp")
+            val image_bitmap = BitmapFactory.decodeStream(input_stream)
+
+            // Header section with welcome and role texts
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Bienvenido, ${user.username}",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Role, ${user.username}",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Dropdown for selecting a rutina de mantenimiento
-        Button(onClick = { rutinaExpanded = true }) {
-            Text(text = selectedRutina)
-        }
-        DropdownMenu(
-            expanded = rutinaExpanded,
-            onDismissRequest = { rutinaExpanded = false }
-        ) {
-            rutinas.forEach { rutina ->
-                DropdownMenuItem(
-                    text = { Text(text = rutina) },
-                    onClick = {
-                        selectedRutina = rutina
-                        rutinaExpanded = false
-                    }
-                )
+            // Image section
+            Image(
+                bitmap = image_bitmap.asImageBitmap(),
+                contentDescription = "Imagen de la máquina",
+                modifier = Modifier
+                    .size(200.dp)
+                    .padding(16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Dropdown for selecting a machine
+            Button(onClick = { machineExpanded = true }) {
+                Text(text = selectedMachine)
             }
-        }
+            DropdownMenu(
+                expanded = machineExpanded,
+                onDismissRequest = { machineExpanded = false }
+            ) {
+                machines.forEach { machine ->
+                    DropdownMenuItem(
+                        text = { Text(text = machine) },
+                        onClick = {
+                            selectedMachine = machine
+                            machineExpanded = false
+                        }
+                    )
+                }
+            }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Logout button
-        Button(onClick = { userViewModel.logout() }) {
-            Text(text = "Cerrar sesión")
+            // Dropdown for selecting a rutina de mantenimiento
+            Button(onClick = { rutinaExpanded = true }) {
+                Text(text = selectedRutina)
+            }
+            DropdownMenu(
+                expanded = rutinaExpanded,
+                onDismissRequest = { rutinaExpanded = false }
+            ) {
+                rutinas.forEach { rutina ->
+                    DropdownMenuItem(
+                        text = { Text(text = rutina) },
+                        onClick = {
+                            selectedRutina = rutina
+                            rutinaExpanded = false
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Button for initiating (Iniciar)
+            Button(onClick = { /* Start action */ }) {
+                Text(text = "Iniciar")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Logout button (Salir)
+            Button(onClick = { userViewModel.logout() }) {
+                Text(text = "Salir")
+            }
         }
     }
 }

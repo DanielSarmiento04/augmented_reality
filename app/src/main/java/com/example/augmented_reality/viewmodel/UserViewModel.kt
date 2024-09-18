@@ -24,8 +24,8 @@ class UserViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    private val client_username = "Daniel"
-    private val client_password = "Contravene"
+    private val client_username = "UIS"
+    private val client_password = "1298contra"
 
     fun login(username: String, password: String) {
         _isLoading.value = true
@@ -62,8 +62,6 @@ class UserViewModel : ViewModel() {
             }
         }
     }
-
-
 
     // Handle authentication check with the updated User model
     fun authenticate() {
