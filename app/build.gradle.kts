@@ -56,6 +56,8 @@ dependencies {
 
     //implementation("com.google.ar:core:1.44.0")
     implementation("androidx.activity:activity-ktx:$activity_version")
+    implementation("androidx.activity:activity-compose")
+    implementation("androidx.compose.material:material-icons-extended")
 
     // Androidx
     implementation(libs.androidx.activity.compose)

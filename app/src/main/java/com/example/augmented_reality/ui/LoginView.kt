@@ -2,55 +2,49 @@
 
 package com.example.augmented_reality.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.augmented_reality.viewmodel.UserViewModel
-import android.util.Log
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginView(
     navController: NavHostController,
-    userViewModel: UserViewModel  // Remove default value
+    userViewModel: UserViewModel = viewModel()
 ) {
     val isLoading by userViewModel.isLoading.collectAsState()
     val errorMessage by userViewModel.errorMessage.collectAsState()
     val user by userViewModel.user.collectAsState()
 
-    // State for username and password fields
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-    // Log the authentication state
-    Log.d("LoginView", "User isAuthenticated: ${user.isAuthenticated}")
-
-    // Navigate to UserContentView when authenticated
+    // Navigate if the user is authenticated
     if (user.isAuthenticated) {
-        // Perform navigation
         LaunchedEffect(Unit) {
             navController.navigate("userContent") {
                 popUpTo("login") { inclusive = true }
@@ -58,64 +52,101 @@ fun LoginView(
         }
     }
 
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xFF4A148C), Color(0xFF7B1FA2))
+                )
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            Text(text = "Inicio de Sesión")
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Username input field
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Usuario") },
-                modifier = Modifier.fillMaxWidth(0.8f)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Password Input Field
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text(text = "Contraseña") },
-                modifier = Modifier.fillMaxWidth(0.8f),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Show error message if present
-            errorMessage?.let {
-                Text(text = it, color = Color.Red)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // Login Button
-            Button(
-                onClick = {
-                    // Call the login function with user input
-                    userViewModel.login(
-                        username = username,
-                        password = password
-                    )
-                },
-                enabled = !isLoading // Disable the button if loading is true
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.85f)
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(text = "Login")
-            }
+                Text(
+                    text = "Inicio de Sesión",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp),
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-            // Retry button if login failed
-            if (errorMessage != null) {
-                TextButton(onClick = { userViewModel.login(username, password) }) {
-                    Text(text = "Retry", color = Color.Blue)
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Usuario") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = androidx.compose.ui.text.input.ImeAction.Next
+                    )
+                )
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Contraseña") },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (isPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = androidx.compose.ui.text.input.ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            userViewModel.login(username, password)
+                        }
+                    )
+                )
+
+                AnimatedVisibility(visible = errorMessage != null) {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Button(
+                    onClick = { userViewModel.login(username, password) },
+                    enabled = !isLoading,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text("Login")
+                    }
+                }
+
+                if (errorMessage != null) {
+                    TextButton(onClick = { userViewModel.login(username, password) }) {
+                        Text("Reintentar", color = MaterialTheme.colorScheme.primary)
+                    }
                 }
             }
         }
