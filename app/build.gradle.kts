@@ -55,6 +55,7 @@ dependencies {
     val activity_version = "1.9.1"
 
     //implementation("com.google.ar:core:1.44.0")
+    implementation("androidx.core:core-splashscreen:1.0.0")
     implementation("androidx.activity:activity-ktx:$activity_version")
     implementation("androidx.activity:activity-compose")
     implementation("androidx.compose.material:material-icons-extended")
@@ -98,4 +99,7 @@ dependencies {
 
     // CameraX
     implementation(libs.bundles.androidx.camera)
+
+    // AndroidPdfViewer for displaying PDFs
+    implementation("com.github.barteksc:android-pdf-viewer:3.2.0-beta.1")
 }

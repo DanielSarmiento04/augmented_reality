@@ -57,7 +57,7 @@ fun LoginView(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFF4A148C), Color(0xFF7B1FA2))
+                    colors = listOf(Color(0xFF4A148C), Color(0xFF937DA1))
                 )
             ),
         contentAlignment = Alignment.Center

@@ -63,27 +63,6 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    // Handle authentication check with the updated User model
-    fun authenticate() {
-        _isLoading.value = true
-        _errorMessage.value = null
-        viewModelScope.launch {
-            try {
-                val isAuthenticated = RetrofitInstance.authenticationService.authenticate(
-                    token = "bearer ${_accessToken.value}",
-                    request = AuthenticationRequest(username = _user.value.username, password = _user.value.password)
-                )
-                _user.value = _user.value.copy(isAuthenticated = isAuthenticated)
-            } catch (e: Exception) {
-                _errorMessage.value = "Authentication failed."
-                _user.value = _user.value.copy(isAuthenticated = false)
-                e.printStackTrace()
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
     fun logout() {
         _user.value = User(username = "", password = "", isAuthenticated = false)
         _accessToken.value = null
