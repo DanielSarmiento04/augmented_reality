@@ -101,5 +101,5 @@ dependencies {
     implementation(libs.bundles.androidx.camera)
 
     // AndroidPdfViewer for displaying PDFs
-    implementation("com.github.barteksc:android-pdf-viewer:3.2.0-beta.1")
+//    implementation("com.github.barteksc:android-pdf-viewer:2.8.0")
 }

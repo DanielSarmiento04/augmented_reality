@@ -4,6 +4,6 @@ package com.example.augmented_reality.viewmodel
 //import androidx.appcompat.app.AppCompatActivity
 //import com.github.barteksc.pdfviewer.PDFView
 //import com.example.augmented_reality.R
-
-class PdfViewerActivity {
-}
+//
+//class PdfViewerActivity:AppCompatActivity {
+//}
