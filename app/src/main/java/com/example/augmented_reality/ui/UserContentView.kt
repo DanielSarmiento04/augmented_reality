@@ -42,7 +42,7 @@ fun UserContentView(
     var selectedRutina by remember { mutableStateOf("Seleccione una rutina de mantenimiento") }
 
     // Sample data for machines and rutinas
-    val machines = listOf("Máquina 1", "Máquina 2", "Máquina 3")
+    val machines = listOf("motor", "Máquina 2", "Máquina 3")
     val rutinas = listOf("Rutina A", "Rutina B", "Rutina C")
 
     // State of current Drop down menu box
