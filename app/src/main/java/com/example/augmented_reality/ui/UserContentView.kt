@@ -21,15 +21,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.augmented_reality.viewmodel.UserViewModel
-
+import com.example.augmented_reality.viewmodel.ManualViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserContentView(
     navController: NavHostController,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    manualViewModel: ManualViewModel = viewModel()
 ) {
     // Observe user state
     val user by userViewModel.user.collectAsState()
@@ -42,7 +44,7 @@ fun UserContentView(
     var selectedRutina by remember { mutableStateOf("Seleccione una rutina de mantenimiento") }
 
     // Sample data for machines and rutinas
-    val machines = listOf("motor", "Máquina 2", "Máquina 3")
+    val machines = listOf("Motor Mono W22")
     val rutinas = listOf("Rutina A", "Rutina B", "Rutina C")
 
     // State of current Drop down menu box
@@ -83,13 +85,13 @@ fun UserContentView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Bienvenido, ${user.username}",
+                    text = "Bienvenido:  ${user.username}",
                     modifier = Modifier.padding(16.dp),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Role, ${user.username}",
+                    text = "Rol:  ${user.username}",
                     modifier = Modifier.padding(16.dp),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
@@ -193,6 +195,13 @@ fun UserContentView(
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
+
+            // Button for initiating (Display pdf)
+            Button(onClick = {manualViewModel.display_pdf(selectedMachine) }) {
+                Text(text = "Manual")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Button for initiating (Iniciar)
             Button(onClick = { /* Start action */ }) {
