@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
                                 userViewModel = userViewModel  // Pass down the ViewModel
                             )
                         }
+
                     }
                 }
             }
