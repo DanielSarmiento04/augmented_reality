@@ -139,7 +139,7 @@ fun LoginView(
                             modifier = Modifier.size(24.dp)
                         )
                     } else {
-                        Text("Login")
+                        Text("Ingresar")
                     }
                 }
 

@@ -49,12 +49,12 @@ class UserViewModel : ViewModel() {
                     _user.value = User(username = username, password = password, isAuthenticated = true)
                     Log.d("UserViewModel", "User authenticated successfully.")
                 } else {
-                    _errorMessage.value = "Authentication failed. Please check your credentials."
+                    _errorMessage.value = "Autenticación Falló"
                     _user.value = User(username = "", password = "", isAuthenticated = false)
                     Log.d("UserViewModel", "User authentication failed.")
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Login failed. Please check your credentials."
+                _errorMessage.value = "Fallo en el ingreso, por favor verifique las credenciales."
                 _user.value = User(username = "", password = "", isAuthenticated = false)
                 Log.e("UserViewModel", "Exception during login", e)
             } finally {
