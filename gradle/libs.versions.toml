@@ -8,6 +8,7 @@ android-targetSdk = "34"
 cameraCore = "1.2.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
+pdfViewer = "2.8.2"  # Add this line for the PDF Viewer version
 
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -61,6 +62,8 @@ androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "
 androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "cameraCore" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCore" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
+
+pdf-viewer = { group = "com.github.barteksc", name = "android-pdf-viewer", version.ref = "pdfViewer" }
 
 [bundles]
 androidx-lifecycle = [
