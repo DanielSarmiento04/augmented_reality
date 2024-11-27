@@ -25,6 +25,7 @@ Este es un proyecto de ejemplo para la creación de una aplicación de realidad 
 - Jetpack Compose: La librería moderna de Android para construir interfaces de usuario de manera declarativa.
 - MVVM (Modelo-Vista-ViewModel): Arquitectura que ayuda a separar las capas de presentación, negocio y datos.
 - Kotlin Coroutines: Para manejar operaciones asíncronas de forma eficiente.
+- PdfRenderer (SDK Nativo): Visualización de manuales en formato PDF.
 - Navegación en Jetpack Compose: Para gestionar las transiciones entre pantallas.
 - Hilt (opcional): Inyección de dependencias simplificada.
 - Realidad Aumentada (ARCore): Para integrar la funcionalidad de realidad aumentada.
@@ -41,13 +42,19 @@ Este es un proyecto de ejemplo para la creación de una aplicación de realidad 
 │   │   │   ├── /ui
 │   │   │   │   ├── LoginView.kt
 │   │   │   │   ├── UserContentView.kt
+│   │   │   │   ├── ManualView.kt
 │   │   │   ├── /viewmodel
 │   │   │   │   ├── UserViewModel.kt
+│   │   │   │   ├── ManualViewModel.kt
 │   │   │   ├── /model
 │   │   │   │   ├── User.kt
 │   │   │   ├── /services
 │   │   │   │   ├── AuthorizationService.kt
 │   │   │   │   ├── AuthenticationService.kt
+│   │   │   ├── /assets
+│   │   │   │   ├── /motor_mono_w22
+│   │   │   │   │   ├── motor_mono_w22.pdf
+
 ```
 
 ## Funcionalidades
@@ -56,6 +63,10 @@ Este es un proyecto de ejemplo para la creación de una aplicación de realidad 
   - Soporta credenciales estáticas por defecto (`username: Daniel`, `password: Contravene`).
   - Permite credenciales personalizadas.
   - Maneja autenticación basada en tokens y verifica a los usuarios con una API.
+
+- **Visualización de Manuales**
+  - Muestra manuales técnicos en formato PDF utilizando PdfRenderer.
+  - Los archivos se cargan dinámicamente desde la carpeta de activos (assets).
 
 - **Manejo de Errores**
   - Muestra mensajes de error apropiados cuando el inicio de sesión o la autenticación fallan.
@@ -85,7 +96,7 @@ Este es un proyecto de ejemplo para la creación de una aplicación de realidad 
 ## Próximos Pasos
 
 - Integración de ARCore: Agregar funcionalidad de realidad aumentada para superponer datos industriales sobre objetos físicos.
-- Autenticación Real: Conectar el login a una base de datos o API de autenticación.
+- Autenticación Real: Conectar el login a una base de datos o API de autenticación. ✓
 - Mejora de la UI: Añadir animaciones y mejorar la experiencia de usuario con más elementos interactivos.
 
 ## Contribuciones
