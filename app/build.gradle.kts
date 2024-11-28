@@ -100,6 +100,4 @@ dependencies {
     // CameraX
     implementation(libs.bundles.androidx.camera)
 
-    // AndroidPdfViewer for displaying PDFs
-    implementation("com.github.barteksc:android-pdf-viewer:2.8.2")
 }

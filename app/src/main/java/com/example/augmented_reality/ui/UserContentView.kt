@@ -197,7 +197,12 @@ fun UserContentView(
             Spacer(modifier = Modifier.height(32.dp))
 
             // Button for initiating (Display pdf)
-            Button(onClick = {manualViewModel.display_pdf(selectedMachine) }) {
+            Button(onClick = {
+                if (selectedMachine != "Seleccione una máquina") {
+                    navController.navigate("manualView/$selectedMachine")
+                }
+
+            }) {
                 Text(text = "Manual")
             }
 

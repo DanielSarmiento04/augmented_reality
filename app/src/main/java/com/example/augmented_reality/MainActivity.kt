@@ -18,6 +18,7 @@ import com.example.augmented_reality.ui.LoginView
 import com.example.augmented_reality.ui.UserContentView
 import com.example.augmented_reality.ui.theme.Augmented_realityTheme
 import com.example.augmented_reality.viewmodel.UserViewModel  // Import your ViewModel
+import com.example.augmented_reality.ui.ManualView
 
 class MainActivity : ComponentActivity() {
     private val userViewModel: UserViewModel by viewModels()  // Use viewModels() delegate
@@ -46,6 +47,11 @@ class MainActivity : ComponentActivity() {
                                 userViewModel = userViewModel  // Pass down the ViewModel
                             )
                         }
+                        composable("manualView/{pdfName}") { backStackEntry ->
+                            val pdfName = backStackEntry.arguments?.getString("pdfName") ?: "unknown"
+                            ManualView(navController = navController, pdfName = pdfName)
+                        }
+
 
                     }
                 }
