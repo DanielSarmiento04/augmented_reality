@@ -63,6 +63,7 @@ Este es un proyecto de ejemplo para la creación de una aplicación de realidad 
   - Soporta credenciales estáticas por defecto (`username: Daniel`, `password: Contravene`).
   - Permite credenciales personalizadas.
   - Maneja autenticación basada en tokens y verifica a los usuarios con una API.
+  - Seguimiento y notificacion de mantenimiento preventivo para cambio de componentes
 
 - **Visualización de Manuales**
   - Muestra manuales técnicos en formato PDF utilizando PdfRenderer.
