@@ -53,8 +53,9 @@ class MainActivity : ComponentActivity() {
                             ManualView(navController = navController, pdfName = pdfName)
                         }
 
-                        composable("arView") {
-                            ARView(navController = navController)
+                        composable("arView/{selectedMachine}") { backStackEntry ->
+                            val selectedMachine = backStackEntry.arguments?.getString("selectedMachine") ?: "unknown"
+                            ARView(selectedMachine = selectedMachine)
                         }
 
 

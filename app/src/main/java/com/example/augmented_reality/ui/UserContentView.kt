@@ -209,7 +209,11 @@ fun UserContentView(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Button for initiating (Iniciar)
-            Button(onClick = { /* Start action */ }) {
+            Button(onClick = {
+                if (selectedMachine != "Seleccione una máquina") {
+                    navController.navigate("arView/$selectedMachine")
+                }
+            }) {
                 Text(text = "Iniciar")
             }
 

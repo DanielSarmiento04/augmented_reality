@@ -67,7 +67,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
 
     // Augmented Reality
-    implementation("io.github.sceneview:arsceneview:2.2.1")
+    implementation("io.github.sceneview:arsceneview:0.10.0")
 
     // Http Requests
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
