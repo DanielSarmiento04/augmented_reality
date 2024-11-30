@@ -1,14 +1,13 @@
 package com.example.augmented_reality.ui
 
 import android.util.Log
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp  // Import dp for dimension units
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
@@ -19,12 +18,12 @@ fun ARView(selectedMachine: String) {
     val nodes = remember { mutableListOf<ArNode>() }
     val modelNode = remember { mutableStateOf<ArModelNode?>(null) }
     val placeModelButton = remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    val lockObject = remember { mutableStateOf(false) }
 
     val formattedName = selectedMachine.lowercase().replace(" ", "_")
-    val formattedFullNameFile = formattedName + ".glb"
+    val formattedFullNameFile = "$formattedName.glb"
     val assetPath = "$formattedName/$formattedFullNameFile"
-    Log.d("ARView", assetPath)
+    Log.d("ARView", "Asset path: $assetPath")
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
@@ -32,7 +31,6 @@ fun ARView(selectedMachine: String) {
             nodes = nodes,
             planeRenderer = true,
             onCreate = { arSceneView ->
-                // Configure ARSceneView
                 arSceneView.planeRenderer.isVisible = true
                 modelNode.value = ArModelNode(arSceneView.engine, PlacementMode.INSTANT).apply {
                     // Load the machine-specific .glb file from assets
@@ -42,6 +40,7 @@ fun ARView(selectedMachine: String) {
                     ) {
                         Log.d("ARView", "Model loaded: $selectedMachine")
                     }
+
                     onAnchorChanged = {
                         placeModelButton.value = !isAnchored
                     }
@@ -57,6 +56,37 @@ fun ARView(selectedMachine: String) {
                 modifier = Modifier.align(Alignment.Center)
             ) {
                 Text(text = "Place Model")
+            }
+        }
+
+        // Bottom controls
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Previous Button
+            Button(onClick = { /* No action for now */ }) {
+                Text(text = "Previous")
+            }
+
+            Button(onClick = {
+                lockObject.value = !lockObject.value
+                if (lockObject.value) {
+                    modelNode.value?.anchor() // Anchor the model to lock its position
+                } else {
+                    modelNode.value?.detachAnchor() // Detach the anchor to unlock the model
+                }
+            }) {
+                Text(text = if (lockObject.value) "Unlock Object" else "Lock Object")
+            }
+
+
+            // Next Button
+            Button(onClick = { /* No action for now */ }) {
+                Text(text = "Next")
             }
         }
     }
