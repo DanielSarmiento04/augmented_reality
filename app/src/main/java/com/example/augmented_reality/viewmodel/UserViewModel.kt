@@ -3,6 +3,7 @@ package com.example.augmented_reality.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.augmented_reality.model.User
+import com.example.augmented_reality.model.UserResponse
 import com.example.augmented_reality.service.AuthenticationRequest
 import com.example.augmented_reality.service.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,19 +41,21 @@ class UserViewModel : ViewModel() {
                 _accessToken.value = response.access_token
 
                 // Step 2: Authorize the user using the access token
-                val isAuthenticated = RetrofitInstance.authenticationService.authenticate(
+                val userResponse: UserResponse = RetrofitInstance.authenticationService.authenticate(
                     token = "Bearer ${_accessToken.value}",
                     request = AuthenticationRequest(username = username, password = password)
                 )
 
-                if (isAuthenticated) {
-                    _user.value = User(username = username, password = password, isAuthenticated = true)
-                    Log.d("UserViewModel", "User authenticated successfully.")
-                } else {
-                    _errorMessage.value = "Autenticación Falló"
-                    _user.value = User(username = "", password = "", isAuthenticated = false)
-                    Log.d("UserViewModel", "User authentication failed.")
-                }
+                // Update user state based on the response
+                _user.value = User(
+                    username = userResponse.username,
+                    password = userResponse.password,
+                    role = userResponse.role,
+                    isAuthenticated = true
+                )
+
+                Log.d("UserViewModel", "User authenticated successfully.")
+
             } catch (e: Exception) {
                 _errorMessage.value = "Fallo en el ingreso, por favor verifique las credenciales."
                 _user.value = User(username = "", password = "", isAuthenticated = false)

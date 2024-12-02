@@ -91,7 +91,7 @@ fun UserContentView(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Rol:  ${user.username}",
+                    text = "Rol:  ${user.role}",
                     modifier = Modifier.padding(16.dp),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
