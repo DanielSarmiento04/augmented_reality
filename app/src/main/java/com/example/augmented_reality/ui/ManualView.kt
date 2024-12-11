@@ -48,7 +48,7 @@ fun ManualView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Manual") },
+                title = { Text(text = "Documentación") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
