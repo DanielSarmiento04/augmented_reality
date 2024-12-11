@@ -32,7 +32,7 @@ fun ManualView(
     val pdfPages by manualViewModel.pdfPages.collectAsState()
     val errorMessage by manualViewModel.errorMessage.collectAsState()
 
-    // State variables for zooming
+    // State variables for zooming and panning
     var scale by remember { mutableStateOf(1f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
@@ -61,10 +61,10 @@ fun ManualView(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    start = 2.dp,
+                    start = 8.dp,
                     end = 8.dp,
-                    top = paddingValues.calculateTopPadding() / 2, // Reduced top padding
-                    bottom = paddingValues.calculateBottomPadding() / 2 // Reduced bottom padding
+                    top = paddingValues.calculateTopPadding() / 2,
+                    bottom = paddingValues.calculateBottomPadding() / 2
                 )
         ) {
             if (errorMessage != null) {
@@ -74,7 +74,7 @@ fun ManualView(
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(8.dp) // Smaller internal padding
+                        .padding(8.dp)
                 )
             } else {
                 // Zoomable PDF display
@@ -84,14 +84,18 @@ fun ManualView(
                         .fillMaxWidth()
                         .pointerInput(Unit) {
                             detectTransformGestures { _, pan, zoom, _ ->
-                                scale *= zoom
-                                offsetX += pan.x
-                                offsetY += pan.y
+                                val newScale = (scale * zoom).coerceIn(1f, 3f) // Constrain zoom levels
+                                val maxX = (newScale - 1) * 500f // Assume the image width is 500px
+                                val maxY = (newScale - 1) * 500f // Assume the image height is 500px
+
+                                scale = newScale
+                                offsetX = (offsetX + pan.x).coerceIn(-maxX, maxX) // Constrain horizontal pan
+                                offsetY = (offsetY + pan.y).coerceIn(-maxY, maxY) // Constrain vertical pan
                             }
                         }
                         .graphicsLayer(
-                            scaleX = scale.coerceIn(1f, 3f), // Limit zoom
-                            scaleY = scale.coerceIn(1f, 3f),
+                            scaleX = scale,
+                            scaleY = scale,
                             translationX = offsetX,
                             translationY = offsetY
                         ),
@@ -106,13 +110,13 @@ fun ManualView(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp)) // Reduced space between components
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Page navigation controls
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp), // Reduced padding for navigation buttons
+                        .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
