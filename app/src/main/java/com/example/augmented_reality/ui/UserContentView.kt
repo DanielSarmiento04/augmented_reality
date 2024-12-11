@@ -1,26 +1,18 @@
-// UserContentView.kt
-
 package com.example.augmented_reality.ui
 
-import android.content.Context
-import android.graphics.BitmapFactory
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.augmented_reality.viewmodel.UserViewModel
@@ -33,23 +25,17 @@ fun UserContentView(
     userViewModel: UserViewModel,
     manualViewModel: ManualViewModel = viewModel()
 ) {
-    // Observe user state
     val user by userViewModel.user.collectAsState()
 
-    // States for dropdowns
     var machineExpanded by remember { mutableStateOf(false) }
     var selectedMachine by remember { mutableStateOf("Seleccione una máquina") }
 
     var rutinaExpanded by remember { mutableStateOf(false) }
     var selectedRutina by remember { mutableStateOf("Seleccione una rutina de mantenimiento") }
 
-    // Sample data for machines and rutinas
     val machines = listOf("Motor Mono W22")
-    val rutinas = listOf("Rutina A", "Rutina B", "Rutina C")
+    val rutinas = listOf("Diaria", "Mensual", "Anual")
 
-    // State of current Drop down menu box
-
-    // Navigate back to LoginView when user logs out
     LaunchedEffect(user.isAuthenticated) {
         if (!user.isAuthenticated) {
             navController.navigate("login") {
@@ -58,7 +44,6 @@ fun UserContentView(
         }
     }
 
-    // UI layout structure
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -69,74 +54,60 @@ fun UserContentView(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .clip(RoundedCornerShape(20.dp)) // Apply clip modifier
-                .wrapContentHeight(),
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val context = LocalContext.current
-            val input_stream = context.assets.open("bomba-centrifuga.webp")
-            val image_bitmap = BitmapFactory.decodeStream(input_stream)
-
-            // Header section with welcome and role texts
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Placeholder for user initials
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Bienvenido:  ${user.username}",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Rol:  ${user.role}",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    text = user.username.take(2).uppercase(),
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Image section
-            Image(
-                bitmap = image_bitmap.asImageBitmap(),
-                contentDescription = "Imagen de la máquina",
-                modifier = Modifier
-                    .size(250.dp)
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(16.dp))
+            Text(
+                text = "Bienvenido, ${user.username}",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = "Rol: ${user.role}",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Dropdown for selecting a machine
-//            Button(onClick = { machineExpanded = true }) {
-//                Text(text = selectedMachine)
-//            }
             ExposedDropdownMenuBox(
                 expanded = machineExpanded,
                 onExpandedChange = { machineExpanded = it }
             ) {
                 OutlinedTextField(
-                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    textStyle = MaterialTheme.typography.bodySmall,
                     value = selectedMachine,
+                    onValueChange = { selectedMachine = it },
                     readOnly = true,
-                    onValueChange = {
-                        selectedMachine = it
-                    },
-                    shape = RoundedCornerShape(50),
+                    label = { Text("Seleccione una máquina") },
                     trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null
-                        )
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = machineExpanded)
                     },
-                    maxLines = 1,
-                    minLines = 1,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
                 )
                 ExposedDropdownMenu(
                     expanded = machineExpanded,
@@ -156,30 +127,23 @@ fun UserContentView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Dropdown for selecting a rutina de mantenimiento
             ExposedDropdownMenuBox(
                 expanded = rutinaExpanded,
                 onExpandedChange = { rutinaExpanded = it }
             ) {
                 OutlinedTextField(
-                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    textStyle = MaterialTheme.typography.bodySmall,
                     value = selectedRutina,
+                    onValueChange = { selectedRutina = it },
                     readOnly = true,
-                    onValueChange = {
-                        selectedRutina = it
-                    },
-                    shape = RoundedCornerShape(50),
+                    label = { Text("Seleccione una rutina de mantenimiento") },
                     trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null
-                        )
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = rutinaExpanded)
                     },
-                    maxLines = 1,
-                    minLines = 1,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
                 )
-                DropdownMenu(
+                ExposedDropdownMenu(
                     expanded = rutinaExpanded,
                     onDismissRequest = { rutinaExpanded = false }
                 ) {
@@ -194,34 +158,43 @@ fun UserContentView(
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Button for initiating (Display pdf)
-            Button(onClick = {
-                if (selectedMachine != "Seleccione una máquina") {
-                    navController.navigate("manualView/$selectedMachine")
-                }
-
-            }) {
-                Text(text = "Manual")
+            Button(
+                onClick = {
+                    if (selectedMachine != "Seleccione una máquina") {
+                        navController.navigate("manualView/$selectedMachine")
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Ver Documentación")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Button for initiating (Iniciar)
-            Button(onClick = {
-                if (selectedMachine != "Seleccione una máquina") {
-                    navController.navigate("arView/$selectedMachine")
-                }
-            }) {
-                Text(text = "Iniciar")
+            Button(
+                onClick = {
+                    if (selectedMachine != "Seleccione una máquina") {
+                        navController.navigate("arView/$selectedMachine")
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Iniciar Mantenimiento")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Logout button (Salir)
-            Button(onClick = { userViewModel.logout() }) {
-                Text(text = "Salir")
+            Button(
+                onClick = { userViewModel.logout() },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(text = "Cerrar Sesión", color = Color.White)
             }
         }
     }
