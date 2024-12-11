@@ -7,14 +7,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp  // Import dp for dimension units
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
+import kotlin.math.roundToInt
 
 @Composable
-fun ARView(selectedMachine: String) {
+fun ARView(
+    selectedMachine: String
+) {
     val nodes = remember { mutableListOf<ArNode>() }
     val modelNode = remember { mutableStateOf<ArModelNode?>(null) }
     val placeModelButton = remember { mutableStateOf(false) }
