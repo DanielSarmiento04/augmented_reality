@@ -1,5 +1,6 @@
 package com.example.augmented_reality.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -9,14 +10,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.augmented_reality.R
 import com.example.augmented_reality.viewmodel.UserViewModel
 import com.example.augmented_reality.viewmodel.ManualViewModel
+import android.graphics.BitmapFactory
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,10 +35,10 @@ fun UserContentView(
     var selectedMachine by remember { mutableStateOf("Seleccione una máquina") }
 
     var rutinaExpanded by remember { mutableStateOf(false) }
-    var selectedRutina by remember { mutableStateOf("Seleccione una rutina de mantenimiento") }
+    var selectedRutina by remember { mutableStateOf("Seleccione rutina") }
 
     val machines = listOf("Motor Mono W22")
-    val rutinas = listOf("Diaria", "Mensual", "Anual")
+    val rutinas = listOf("Diaria", "Mensual", "Semestral")
 
     LaunchedEffect(user.isAuthenticated) {
         if (!user.isAuthenticated) {
@@ -43,6 +47,11 @@ fun UserContentView(
             }
         }
     }
+
+    val context = LocalContext.current
+    val input_stream = context.assets.open("bomba-centrifuga.webp")
+    val image_bitmap = BitmapFactory.decodeStream(input_stream)
+
 
     Box(
         modifier = Modifier
@@ -93,6 +102,10 @@ fun UserContentView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             ExposedDropdownMenuBox(
                 expanded = machineExpanded,
                 onExpandedChange = { machineExpanded = it }
@@ -101,7 +114,7 @@ fun UserContentView(
                     value = selectedMachine,
                     onValueChange = { selectedMachine = it },
                     readOnly = true,
-                    label = { Text("Seleccione una máquina") },
+                    label = { Text( "Máquina") },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = machineExpanded)
                     },
@@ -135,7 +148,7 @@ fun UserContentView(
                     value = selectedRutina,
                     onValueChange = { selectedRutina = it },
                     readOnly = true,
-                    label = { Text("Seleccione una rutina de mantenimiento") },
+                    label = { Text("Frecuencia de mantenimiento") },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = rutinaExpanded)
                     },
