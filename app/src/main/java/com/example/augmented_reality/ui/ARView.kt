@@ -8,59 +8,132 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.google.android.filament.Engine
+import com.google.ar.core.Config
+import com.google.ar.core.Frame
+import com.google.ar.core.TrackingFailureReason
 import io.github.sceneview.ar.ARScene
-import io.github.sceneview.ar.node.ArModelNode
-import io.github.sceneview.ar.node.ArNode
-import io.github.sceneview.ar.node.PlacementMode
-import kotlin.math.roundToInt
+import io.github.sceneview.ar.arcore.createAnchorOrNull
+import io.github.sceneview.ar.arcore.getUpdatedPlanes
+import io.github.sceneview.ar.arcore.isValid
+import io.github.sceneview.ar.node.AnchorNode
+import io.github.sceneview.ar.rememberARCameraNode
+import io.github.sceneview.loaders.MaterialLoader
+import io.github.sceneview.loaders.ModelLoader
+import io.github.sceneview.node.CubeNode
+import io.github.sceneview.node.ModelNode
+import io.github.sceneview.rememberCollisionSystem
+import io.github.sceneview.rememberEngine
+import io.github.sceneview.rememberMaterialLoader
+import io.github.sceneview.rememberModelLoader
+import io.github.sceneview.rememberNodes
+import io.github.sceneview.rememberOnGestureListener
+import io.github.sceneview.rememberView
 
 @Composable
 fun ARView(
     selectedMachine: String
 ) {
-    val nodes = remember { mutableListOf<ArNode>() }
-    val modelNode = remember { mutableStateOf<ArModelNode?>(null) }
+
+    val engine = rememberEngine()
+    val modelLoader = rememberModelLoader(engine)
+    val materialLoader = rememberMaterialLoader(engine)
+    val cameraNode = rememberARCameraNode(engine)
+    val childNodes = rememberNodes()
+    val view = rememberView(engine)
+    val collisionSystem = rememberCollisionSystem(view)
+
     val placeModelButton = remember { mutableStateOf(false) }
     val lockObject = remember { mutableStateOf(false) }
 
     val formattedName = selectedMachine.lowercase().replace(" ", "_")
     val formattedFullNameFile = "$formattedName.glb"
     val assetPath = "$formattedName/$formattedFullNameFile"
+
+    var planeRenderer by remember { mutableStateOf(true) }
+
+    var trackingFailureReason by remember {
+        mutableStateOf<TrackingFailureReason?>(null)
+    }
+    var frame by remember { mutableStateOf<Frame?>(null) }
     Log.d("ARView", "Asset path: $assetPath")
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
-            nodes = nodes,
-            planeRenderer = true,
-            onCreate = { arSceneView ->
-                arSceneView.planeRenderer.isVisible = true
-                modelNode.value = ArModelNode(arSceneView.engine, PlacementMode.INSTANT).apply {
-                    // Load the machine-specific .glb file from assets
-                    loadModelGlbAsync(
-                        glbFileLocation = assetPath,
-                        scaleToUnits = 0.5f
-                    ) {
-                        Log.d("ARView", "Model loaded: $selectedMachine")
+            childNodes = childNodes,
+            engine = engine,
+            view = view,
+            modelLoader = modelLoader,
+            collisionSystem = collisionSystem,
+            sessionConfiguration = { session, config ->
+                config.depthMode =
+                    when (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+                        true -> Config.DepthMode.AUTOMATIC
+                        else -> Config.DepthMode.DISABLED
                     }
+                config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
+                config.lightEstimationMode =
+                    Config.LightEstimationMode.ENVIRONMENTAL_HDR
+                config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
+            },
+            cameraNode = cameraNode,
+            planeRenderer = planeRenderer,
+            onTrackingFailureChanged = {
+                trackingFailureReason = it
+            },
+            onSessionUpdated = { session, updatedFrame ->
+                frame = updatedFrame
 
-                    onAnchorChanged = {
-                        placeModelButton.value = !isAnchored
-                    }
+                if (childNodes.isEmpty()) {
+
+                    updatedFrame.getUpdatedPlanes()
+                        .firstOrNull{ it.type == com.google.ar.core.Plane.Type.HORIZONTAL_UPWARD_FACING }
+                        ?.let {
+                            it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
+                                childNodes += createAnchorNode(
+                                engine = engine,
+                                modelLoader = modelLoader,
+                                materialLoader = materialLoader,
+                                anchor = anchor,
+                                kModelFile = assetPath
+                            )
+                        }
                 }
-                nodes.add(modelNode.value!!)
-            }
+            },
+            onGestureListener = rememberOnGestureListener(
+                onSingleTapConfirmed = { motionEvent, node ->
+                    if (node == null) {
+                        val hitResults = frame?.hitTest(motionEvent.x, motionEvent.y)
+                        hitResults?.firstOrNull {
+                            it.isValid(
+                                depthPoint = false,
+                                point = false
+                            )
+                        }?.createAnchorOrNull()
+                            ?.let { anchor ->
+                                planeRenderer = false
+                                childNodes += createAnchorNode(
+                                    engine = engine,
+                                    modelLoader = modelLoader,
+                                    materialLoader = materialLoader,
+                                    anchor = anchor,
+                                    kModelFile = assetPath
+                                )
+                            }
+                    }
+                })
+
         )
 
         // Button to place the model in the AR environment
         if (placeModelButton.value) {
             Button(
-                onClick = { modelNode.value?.anchor() },
+                onClick = {
+
+
+                },
                 modifier = Modifier.align(Alignment.Center)
             ) {
                 Text(text = "Place Model")
@@ -81,12 +154,7 @@ fun ARView(
             }
 
             Button(onClick = {
-                lockObject.value = !lockObject.value
-                if (lockObject.value) {
-                    modelNode.value?.anchor() // Anchor the model to lock its position
-                } else {
-                    modelNode.value?.detachAnchor() // Detach the anchor to unlock the model
-                }
+
             }) {
                 Text(text = if (lockObject.value) "Unlock Object" else "Lock Object")
             }
@@ -98,4 +166,45 @@ fun ARView(
             }
         }
     }
+
+
+
+
+}
+
+
+fun createAnchorNode(
+    engine: Engine,
+    modelLoader: ModelLoader,
+    materialLoader: MaterialLoader,
+    anchor: com.google.ar.core.Anchor,
+    kModelFile:String
+): AnchorNode {
+    val anchorNode = AnchorNode(engine = engine, anchor = anchor)
+    val modelNode = ModelNode(
+        modelInstance = modelLoader.createModelInstance(kModelFile),
+        // Scale to fit in a 0.5 meters cube
+        scaleToUnits = 0.5f
+    ).apply {
+        // Model Node needs to be editable for independent rotation from the anchor rotation
+        isEditable = true
+        editableScaleRange = 0.2f..0.75f
+    }
+    val boundingBoxNode = CubeNode(
+        engine,
+        size = modelNode.extents,
+        center = modelNode.center,
+        materialInstance = materialLoader.createColorInstance(Color.White.copy(alpha = 0.5f))
+    ).apply {
+        isVisible = false
+    }
+    modelNode.addChildNode(boundingBoxNode)
+    anchorNode.addChildNode(modelNode)
+
+    listOf(modelNode, anchorNode).forEach {
+        it.onEditingChanged = { editingTransforms ->
+            boundingBoxNode.isVisible = editingTransforms.isNotEmpty()
+        }
+    }
+    return anchorNode
 }
