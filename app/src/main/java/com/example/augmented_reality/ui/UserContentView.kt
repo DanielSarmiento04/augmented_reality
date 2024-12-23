@@ -20,7 +20,9 @@ import com.example.augmented_reality.R
 import com.example.augmented_reality.viewmodel.UserViewModel
 import com.example.augmented_reality.viewmodel.ManualViewModel
 import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +104,17 @@ fun UserContentView(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Displaying the Bitmap image
+            Image(
+                bitmap = image_bitmap.asImageBitmap(),
+                contentDescription = "Bitmap Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp) // Static height for the rectangle
+                    .clip(MaterialTheme.shapes.medium) // Apply rounded corners
+                    .background(MaterialTheme.colorScheme.surfaceVariant), // Optional background color
+                contentScale = ContentScale.Crop // Ensures the image fills the entire rectangle
+            )
 
 
             Spacer(modifier = Modifier.height(16.dp))
