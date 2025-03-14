@@ -18,11 +18,27 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+//        // Add TensorFlow model assets
+//        assets {
+//            matches {
+//                include("yolov11_*.tflite")
+//                include("*.pb")
+//            }
+//        }
+        
+        // Enable ndk for opencv native support
+        ndk {
+            abiFilters.add("armeabi-v7a")
+            abiFilters.add("arm64-v8a")
+            abiFilters.add("x86")
+            abiFilters.add("x86_64")
+        }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -32,6 +48,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        // Use Java 8 features for better performance
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "1.8"
@@ -102,5 +120,29 @@ dependencies {
 
     // CameraX
     implementation(libs.bundles.androidx.camera)
+
+    // Computer Vision and ML
+    implementation("org.tensorflow:tensorflow-lite:2.9.0")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.9.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.2")
+    implementation("org.opencv:opencv:4.11.0")
+
+    // Performance optimization
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    // AR and 3D rendering optimization
+    implementation("io.github.sceneview:arsceneview:2.1.1")
+    implementation("com.google.android.filament:filament-android:1.40.0")
+    implementation("com.google.android.filament:filament-utils-android:1.40.0")
+    
+    // Coroutine improvements
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    
+    // Material 3 enhanced components
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
 
 }
