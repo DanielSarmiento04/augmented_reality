@@ -10,6 +10,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.opencv_tutorial.YOLO11Detector
 import com.google.ar.core.Frame
 import com.google.ar.core.Session
+import com.google.ar.core.exceptions.CameraNotAvailableException
+import com.google.ar.core.exceptions.NotYetAvailableException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -142,9 +144,19 @@ class ARDetectionManager(
             try {
                 val startTime = System.currentTimeMillis()
                 
-                // Get camera image
-                val image = frame.tryAcquireCameraImage()
-                if (image == null) {
+                // Get camera image - using the correct ARCore method with exception handling
+                val image = try {
+                    frame.acquireCameraImage()
+                } catch (e: NotYetAvailableException) {
+                    Log.d(TAG, "Camera image not yet available")
+                    isProcessing.set(false)
+                    return@execute
+                } catch (e: CameraNotAvailableException) {
+                    Log.e(TAG, "Camera not available", e)
+                    isProcessing.set(false)
+                    return@execute
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error acquiring camera image", e)
                     isProcessing.set(false)
                     return@execute
                 }
@@ -219,21 +231,100 @@ class ARDetectionManager(
         val useOriginalSize = detectionFrequency == DetectionFrequency.HIGH && 
                               avgProcessingTimeMs < 100.0
         
-        val targetBitmap = if (useOriginalSize) {
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val targetWidth: Int
+        val targetHeight: Int
+        
+        if (useOriginalSize) {
+            targetWidth = width
+            targetHeight = height
         } else {
             // Scale down for better performance
             val aspectRatio = width.toFloat() / height.toFloat()
-            val targetW = if (width > height) targetResolution.width else (targetResolution.height * aspectRatio).toInt()
-            val targetH = if (height > width) targetResolution.height else (targetResolution.width / aspectRatio).toInt()
-            
-            Bitmap.createBitmap(targetW, targetH, Bitmap.Config.ARGB_8888)
+            targetWidth = if (width > height) targetResolution.width else (targetResolution.height * aspectRatio).toInt()
+            targetHeight = if (height > width) targetResolution.height else (targetResolution.width / aspectRatio).toInt()
         }
         
-        // Use ARCore to convert from YUV to RGB
-        session.convertYuv(image, targetBitmap)
+        // Create target bitmap
+        val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
         
-        return targetBitmap
+        // Convert YUV to RGB using Android's YuvImage
+        // Get YUV data from image planes
+        val yBuffer = image.planes[0].buffer
+        val uBuffer = image.planes[1].buffer
+        val vBuffer = image.planes[2].buffer
+        
+        val ySize = yBuffer.remaining()
+        val uSize = uBuffer.remaining()
+        val vSize = vBuffer.remaining()
+        
+        val nv21 = ByteArray(ySize + uSize + vSize)
+        
+        // U and V are swapped
+        yBuffer.get(nv21, 0, ySize)
+        vBuffer.get(nv21, ySize, vSize)
+        uBuffer.get(nv21, ySize + vSize, uSize)
+        
+        // Use OpenCV for conversion (more efficient with native code)
+        try {
+            val yuvMat = org.opencv.core.Mat(height + height / 2, width, org.opencv.core.CvType.CV_8UC1)
+            yuvMat.put(0, 0, nv21)
+            
+            val rgbMat = org.opencv.core.Mat()
+            org.opencv.imgproc.Imgproc.cvtColor(yuvMat, rgbMat, org.opencv.imgproc.Imgproc.COLOR_YUV2RGBA_NV21)
+            
+            // If we need to resize
+            if (targetWidth != width || targetHeight != height) {
+                val resizedMat = org.opencv.core.Mat()
+                org.opencv.imgproc.Imgproc.resize(
+                    rgbMat, 
+                    resizedMat, 
+                    org.opencv.core.Size(targetWidth.toDouble(), targetHeight.toDouble())
+                )
+                org.opencv.android.Utils.matToBitmap(resizedMat, bitmap)
+                resizedMat.release()
+            } else {
+                org.opencv.android.Utils.matToBitmap(rgbMat, bitmap)
+            }
+            
+            yuvMat.release()
+            rgbMat.release()
+        } catch (e: Exception) {
+            // Fallback to slower Java conversion if OpenCV fails
+            Log.e(TAG, "OpenCV conversion failed, falling back to YuvImage: ${e.message}")
+            
+            val yuvImage = android.graphics.YuvImage(
+                nv21, 
+                android.graphics.ImageFormat.NV21, 
+                width, 
+                height, 
+                null
+            )
+            
+            val outputStream = java.io.ByteArrayOutputStream()
+            yuvImage.compressToJpeg(android.graphics.Rect(0, 0, width, height), 95, outputStream)
+            
+            val jpegData = outputStream.toByteArray()
+            val tempBitmap = android.graphics.BitmapFactory.decodeByteArray(jpegData, 0, jpegData.size)
+            
+            // Scale if needed
+            if (tempBitmap.width != targetWidth || tempBitmap.height != targetHeight) {
+                val scaledBitmap = Bitmap.createScaledBitmap(tempBitmap, targetWidth, targetHeight, true)
+                tempBitmap.recycle()
+                scaledBitmap.copyTo(bitmap)
+                scaledBitmap.recycle()
+            } else {
+                tempBitmap.copyTo(bitmap)
+                tempBitmap.recycle()
+            }
+        }
+        
+        return bitmap
+    }
+    
+    // Extension function to help with bitmap copying
+    private fun Bitmap.copyTo(target: Bitmap) {
+        val canvas = android.graphics.Canvas(target)
+        canvas.drawBitmap(this, 0f, 0f, null)
     }
     
     /**
