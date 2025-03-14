@@ -19,13 +19,6 @@ android {
             useSupportLibrary = true
         }
 
-//        // Add TensorFlow model assets
-//        assets {
-//            matches {
-//                include("yolov11_*.tflite")
-//                include("*.pb")
-//            }
-//        }
         
         // Enable ndk for opencv native support
         ndk {
